@@ -35,6 +35,19 @@ class CURLFileSerializerTest extends TestCase
     }
 
     /**
+     * Test if not serializing at all gives a CURLFile.
+     */
+    public function testNotSerializingGivesACURLFile()
+    {
+        $curlFileSerializer = CURLFileSerializer::create(new CURLFile(__DIR__.'/Resources/file.txt'));
+
+        $this->assertInstanceOf(
+            'CURLFile',
+            $curlFileSerializer->getCURLFile()
+        );
+    }
+
+    /**
      * Test if CURLFile can be restored.
      */
     public function testCURLFileIsRestored()
@@ -64,5 +77,18 @@ class CURLFileSerializerTest extends TestCase
         $actualContent = file_get_contents($curlFileSerializer->getCURLFile()->getFilename());
 
         $this->assertSame($expectedContent, $actualContent);
+    }
+
+    /**
+     * When not all data is provided while unserializing, it should fail
+     */
+    public function testCallingUnserializeDirectlyWithWrongDataFails()
+    {
+        $this->expectException('\UnexpectedValueException');
+
+        $fakeInfo = serialize(array('fake' => 'info'));
+
+        CURLFileSerializer::create(new CURLFile(__DIR__.'/Resources/file.txt'))
+            ->unserialize($fakeInfo);
     }
 }

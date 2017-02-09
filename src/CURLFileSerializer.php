@@ -4,6 +4,7 @@ namespace GisoStallenberg\CURLFileSerializer;
 
 use CURLFile;
 use Serializable;
+use UnexpectedValueException;
 
 /**
  * A class to serialize a CURLFile object.
@@ -61,9 +62,11 @@ class CURLFileSerializer implements Serializable
     {
         extract(unserialize($fileInfo)); // gives $fileName, $mimeType, $postFilename
 
-        $this->curlfile = new CURLFile($fileName);
-        $this->curlfile->setMimeType($mimeType);
-        $this->curlfile->setPostFilename($postFilename);
+        if ( (isset($fileName) && isset($mimeType) && isset($postFilename)) === false) {
+            throw new UnexpectedValueException('Insufficient data provided to unserialize');
+        }
+
+        $this->curlfile = new CURLFile($fileName, $mimeType, $postFilename);
     }
 
     /**
